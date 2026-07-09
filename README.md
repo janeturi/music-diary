@@ -1,3 +1,4 @@
+
 # music-diary
 An in-progress social media application that allows users to share their musical opinions!
 
@@ -10,8 +11,7 @@ Wondering what the app will look like when it's done? Check out the Figma Protot
 <img width="2560" height="1664" alt="image" src="https://github.com/user-attachments/assets/73ccc720-c660-4d37-9cd2-5db82940bf85" />
 
 <h2> Sign Up Page </h2>
-<img width="2560" height="1664" alt="image" src="https://github.com/user-attachments/assets/42587fb8-153a-4926-8e20-a222de5ed3d2" />
-
+<img width="680" height="441" alt="Screenshot 2026-07-08 at 11 42 22 PM" src="https://github.com/user-attachments/assets/32b5711a-8fd8-436d-8673-064cd773bcf3" />
 <h2> Trending Music Page </h2>
 <img width="2560" height="1664" alt="image" src="https://github.com/user-attachments/assets/6bc7892a-57cc-49cc-a33e-b6112efa8cda" />
 
