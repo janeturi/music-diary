@@ -1,6 +1,6 @@
 
 # music-diary
-An in-progress social media application that allows users to share their musical opinions!
+Social music discovery platform inspired by Letterboxd enabling users to catalog listening history, review albums and songs via ratings and personalized messages, discover new music through community activity, and maintain personalized music profiles. This is a fullstack application that should be released for public access soon.
 
 This app is about 25% done. I'll be updating this as frequent as possible so that the app can be pushes to users eventually! Be sure to check back in whenever you can. :)
 
