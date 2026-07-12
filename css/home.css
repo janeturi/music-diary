@@ -1,0 +1,111 @@
+@import url('https://googleapis.com');
+@import url('https://fonts.googleapis.com');
+@import url('https://fonts.googleapis.com/css2?family=Bytesized&family=Cousine:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+.home {
+  padding: 2rem 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-form {
+  width: 100%;
+  margin: 0 0 2rem 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.title {
+  color: #EB9AB2;
+  font-family: Poppins;
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  text-transform: capitalize;
+  padding-top: 1%;
+}
+
+.search-input {
+  max-width: 500px; 
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #2E2E2E;
+  color: white;
+  font-size: 1rem;
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #666;
+}
+
+.search-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #4B97CF;
+  color: white;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+
+}
+
+.search-button:hover {
+  background-color: #60aee6;
+  border-color: #60aee6;
+}
+
+@media (max-width: 639px) {
+  .home {
+    padding: 1rem 0;
+  }
+
+  .search-form {
+    margin-bottom: 1rem;
+  }
+}
+
+.music-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+hr.solid {
+  border-top: 1px solid;
+  border-color: #2E2E2E;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.back-button {
+  padding: 0.6rem 1.2rem;
+  background-color: transparent;
+  border: 1px solid #666;
+  border-radius: 4px;
+  color: white;
+  font-family: Poppins;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.back-button:hover {
+  background-color: #2E2E2E;
+  border-color: #999;
+}
