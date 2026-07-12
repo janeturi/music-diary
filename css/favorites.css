@@ -1,0 +1,74 @@
+@import url('https://googleapis.com');
+@import url('https://fonts.googleapis.com');
+@import url('https://fonts.googleapis.com/css2?family=Bytesized&family=Cousine:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+
+.favorites-section {
+  padding: 1rem;
+}
+
+.favorites-title {
+  color: #EB9AB2;
+  font-family: Poppins;
+  font-size: 36px;
+  font-weight: 700;
+  padding: 1% 0;
+}
+
+h2 {
+  margin-left: 1%;
+  color: #F9F3B3;
+  font-family: Poppins;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.music-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.music-grid > * {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.favorites-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.favorites-empty h2 {
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  color: #EB9AB2;
+  font-family: Poppins;
+}
+
+.favorites-empty p {
+  color: #999;
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+hr.solid {
+  margin-bottom: 10px;
+}
