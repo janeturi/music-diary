@@ -1,0 +1,62 @@
+@import url('https://googleapis.com');
+@import url('https://fonts.googleapis.com');
+@import url('https://fonts.googleapis.com/css2?family=Bytesized&family=Cousine:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+:root{
+  --pink: #EB9AB2;
+}
+
+.cousine-regular       { font-family: "Cousine", monospace; font-weight: 400; font-style: normal; }
+.cousine-bold          { font-family: "Cousine", monospace; font-weight: 700; font-style: normal; }
+.cousine-regular-italic{ font-family: "Cousine", monospace; font-weight: 400; font-style: italic; }
+.cousine-bold-italic   { font-family: "Cousine", monospace; font-weight: 700; font-style: italic; }
+.bytesized-regular     { font-family: "Bytesized", sans-serif; font-weight: 400; font-style: normal; }
+
+.navbar {
+  font-family: 'Poppins', sans-serif;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  font-family: 'Bytesized', sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  color: #ECF2D8;
+  line-height: normal;
+  text-decoration: none;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-link {
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #ffffff;
+  opacity: 0.72;
+  transition: opacity .2s ease;
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -6px;
+  height: 1px;
+  background: var(--pink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .25s ease;
+}
+
+.nav-link:hover { opacity: 1; }
+.nav-link:hover::after { transform: scaleX(1); }
