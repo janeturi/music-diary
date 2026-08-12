@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com');
 @import url('https://fonts.googleapis.com/css2?family=Bytesized&family=Cousine:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-/* info from music card adjusted for diary entries */
+
 .reviewSongInfo {
   display: flex;
   align-items: center;
@@ -47,7 +47,6 @@
   border-radius: 20px;
   line-height: 1.4;
 }
-/* diary stylization, inc ratings and modal container */
 
 .starRating {
   display: flex;
