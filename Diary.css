@@ -1,0 +1,115 @@
+@import url('https://googleapis.com');
+@import url('https://fonts.googleapis.com');
+@import url('https://fonts.googleapis.com/css2?family=Bytesized&family=Cousine:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+.diary-section {
+  padding: 1rem;
+}
+
+.diary-title {
+  color: #EB9AB2;
+  font-family: Poppins;
+  font-size: 36px;
+  font-weight: 700;
+  padding: 1% 0;
+}
+
+.diary-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.diary-empty h2 {
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  color: #EB9AB2;
+  font-family: Poppins;
+}
+
+.diary-empty p {
+  color: #999;
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.diary-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.diary-entries > * {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.diary-entry {
+  display: flex;
+  gap: 20px;
+  background-color: #4B97CF;
+  border-radius: 20px;
+  padding: 20px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.diary-entry:hover {
+  transform: scale(1.01);
+}
+
+.diary-entry-cover {
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.diary-entry-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.diary-entry-song {
+  color: #FEFFCA;
+  font-family: Poppins;
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0;
+}
+
+.diary-entry-artist {
+  color: #FEFFCA;
+  opacity: 0.75;
+  font-family: Poppins;
+  font-size: 13px;
+  margin: 4px 0 8px;
+}
+
+.diary-card-stars {
+  margin-top: 6px;
+}
+
+.diary-card-stars .star {
+  font-size: 14px;
+  color: #555;
+}
+
+.diary-card-stars .star.filled {
+  color: #FCB9CD;
+}
+
+.diary-entry-text {
+  color: #FEFFCA;
+  font-family: 'Poppins';
+  font-size: 15px;
+  margin-top: 10px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
