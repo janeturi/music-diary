@@ -3,12 +3,17 @@ import { useNavigate } from "react-router-dom"
 import WaveText from "../components/Animations"
 import "../css/Landing.css"
 import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button } from '@mantine/core';
+import { Modal, Button, PasswordInput } from '@mantine/core';
+import { supabase } from "../services/supabaseClient"
+import Login from "../components/Login"
+import { useAuth } from "../contexts/AuthContext"
 
 function Landing() {
   const navigate = useNavigate()
   const [isSpinning, setIsSpinning] = useState(true)
   const [opened, { open, close }] = useDisclosure(false);
+  const [loginOpened, { open: openLogin, close: closeLogin }] = useDisclosure(false)
+  const { user } = useAuth()
 
   const notes = [
     { icon: "♪", top: "30%", left: "40px", size: "32px", delay: "0s" },
@@ -18,12 +23,44 @@ function Landing() {
     { icon: "♪", top: "80%", left: "50px", size: "28px", delay: "1.1s" },
   ]
 
-  const handleCreateAccount = (e) => {
-    e.preventDefault()
-    // TODO: read form values / call API here  
-    close()
-    navigate('/home')
+
+const [authError, setAuthError] = useState(null)
+const [loading, setLoading] = useState(false)
+
+async function handleCreateAccount(e) {
+  e.preventDefault()
+  setLoading(true)
+
+  const formData = new FormData(e.target)
+  const email = formData.get("email")
+  const password = formData.get("password")
+  const username = formData.get("username")
+  const passwordInput = e.target.elements.password
+
+  passwordInput.setCustomValidity("")
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { username },
+    },
+  })
+
+  setLoading(false)
+
+  if (error) {
+    console.error("Signup failed:", error)
+    passwordInput.setCustomValidity(error.message)
+    passwordInput.reportValidity()
+    return
   }
+
+  console.log("Signed up:", data)
+  close()
+  navigate("/home", { state: { toast: "Account created! Please confirm your email." } })
+  
+}
 
   return (
     <div className="landing-container">
@@ -72,15 +109,33 @@ function Landing() {
               <input type="text" name="username" className="modalInput" required />
             </label>
             <label className="modalLabel">Password
-              <input type="password" name="password" className="modalInput" required minLength={6} />
+              <input
+                type="password" 
+                name="password"
+                className="modalInput"
+                onChange={(e) => e.target.setCustomValidity("")}
+              />
             </label>
-            <input type="submit" value="SIGN UP!" className="modalSubmit" />
+            
+            <input type="submit" value="SIGN UP!" className="modalSubmit" disabled={loading} />
           </form>
         </Modal>
 
-        <button className="start-btn" onClick={open}>
-          GET STARTED!
-        </button>
+        {!loading && user ? (
+          <button className="start-btn" onClick={() => navigate("/home")}>
+            CONTINUE TO APP
+          </button>
+        ) : (
+          <>
+            <button className="start-btn" onClick={open}>
+              GET STARTED!
+            </button>
+            <button className="login-btn" onClick={openLogin}>
+              LOG IN
+            </button>
+          </>
+        )}
+        <Login opened={loginOpened} onClose={closeLogin} />
       </div>
 
       <div id="vinyl-container">
