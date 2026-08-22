@@ -1,12 +1,62 @@
 import "../css/Diary.css"
 import "../css/MusicCard.css"
-import { useState } from "react"
-import { useMusicContext } from "../contexts/MusicContext";
+import { useState, useEffect } from "react"
+import { useAuth } from "../contexts/AuthContext"
 import ViewReview from "../components/ViewReview"
+import Review from "../components/Review"
 
 function Diary(){
-  const { reviews } = useMusicContext();
-  const [selectedReview, setSelectedReview] = useState(null);
+  const { user } = useAuth()
+  const [reviews, setReviews] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [selectedReview, setSelectedReview] = useState(null)
+  const [editingSong, setEditingSong] = useState(null)
+
+  function fetchDiary() {
+    if (!user) {
+      setLoading(false)
+      return
+    }
+    fetch(`http://localhost:3000/api/reviews/user/${user.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setReviews(data)
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error("Failed to fetch diary:", err)
+        setLoading(false)
+      })
+  }
+
+  useEffect(() => {
+    setLoading(true)
+    fetchDiary()
+  }, [user])
+
+  function handleEdit(review) {
+    setSelectedReview(null)
+    setEditingSong({
+      id: review.song_id,
+      title: review.title,
+      artist: review.artist,
+      album: review.album,
+      image: review.image,
+    })
+  }
+
+  function handleCloseEdit() {
+    setEditingSong(null)
+    fetchDiary()
+  }
+
+  if (loading) {
+    return (
+      <div className="diary-empty">
+        <h2>loading your diary...</h2>
+      </div>
+    )
+  }
 
   if (reviews.length > 0) {
     return (
@@ -38,6 +88,13 @@ function Diary(){
           opened={!!selectedReview}
           onClose={() => setSelectedReview(null)}
           review={selectedReview}
+          onEdit={() => handleEdit(selectedReview)}
+        />
+
+        <Review
+          opened={!!editingSong}
+          onClose={handleCloseEdit}
+          song={editingSong}
         />
       </div>
     );
