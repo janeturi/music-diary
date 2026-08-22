@@ -6,32 +6,29 @@ import { useAuth } from "../contexts/AuthContext"
 function Login({ opened, onClose }) {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-
+  const [error, setError] = useState("")
   const { login } = useAuth()
 
-async function handleLogin(e) {
-  e.preventDefault()
-  setLoading(true)
+  async function handleLogin(e) {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
 
-  const formData = new FormData(e.target)
-  const email = formData.get("email")
-  const password = formData.get("password")
-  const passwordInput = e.target.elements.password
+    const formData = new FormData(e.target)
+    const email = formData.get("email")
+    const password = formData.get("password")
 
-  passwordInput.setCustomValidity("")
-
-  try {
-    await login(email, password)
-    setLoading(false)
-    onClose()
-    navigate("/home")
-  } catch (err) {
-    setLoading(false)
-    console.error("Login failed:", err)
-    passwordInput.setCustomValidity(err.message)
-    passwordInput.reportValidity()
+    try {
+      await login(email, password)
+      onClose()
+      navigate("/home")
+    } catch (err) {
+      console.error("Login failed:", err)
+      setError(err?.message || "Invalid email or password. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   return (
     <Modal
@@ -48,8 +45,11 @@ async function handleLogin(e) {
         WELCOME <span className="d">BACK!</span> ♪
       </div>
 
+      {error && <div className="modalErrorMsg">{error}</div>}
+
       <form onSubmit={handleLogin}>
-        <label className="modalLabel">Email
+        <label className="modalLabel">
+          Email
           <input
             type="email"
             name="email"
@@ -58,7 +58,9 @@ async function handleLogin(e) {
             required
           />
         </label>
-        <label className="modalLabel">Password
+        
+        <label className="modalLabel">
+          Password
           <input
             type="password"
             name="password"
@@ -68,10 +70,16 @@ async function handleLogin(e) {
           />
         </label>
 
-        <input type="submit" value="LOG IN!" className="modalSubmit" disabled={loading} />
+        <input 
+          type="submit" 
+          value={loading ? "LOGGING IN..." : "LOG IN!"} 
+          className="modalSubmit" 
+          disabled={loading} 
+        />
       </form>
     </Modal>
   )
 }
 
 export default Login
+
