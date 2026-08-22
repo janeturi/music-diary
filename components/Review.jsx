@@ -1,59 +1,56 @@
 import { Modal } from "@mantine/core"
 import { useState, useEffect } from "react"
-import "../css/Review.css"
 import { useAuth } from "../contexts/AuthContext"
+import "../css/Review.css"
 
 function Review({ opened, onClose, song, onSubmitReview }) {
   const [rating, setRating] = useState(0)
   const [existingReviews, setExistingReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const { user, token } = useAuth()
+
   const myExistingReview = existingReviews.find((r) => r.user_id === user?.id)
-  const averageRating = existingReviews.length > 0
-    ? (existingReviews.reduce((sum, r) => sum + r.rating, 0) / existingReviews.length).toFixed(1)
-    : null
   const reviewCount = existingReviews.length
-  const ratingCounts = [1, 2, 3, 4, 5].map((star) => {
+  
+  const averageRating = reviewCount > 0
+    ? (existingReviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1)
+    : null
+
+  const ratingCounts = [5, 4, 3, 2, 1].map((star) => {
     const count = existingReviews.filter((r) => r.rating === star).length
-    const percent = existingReviews.length > 0 ? (count / existingReviews.length) * 100 : 0
+    const percent = reviewCount > 0 ? (count / reviewCount) * 100 : 0
     return { star, count, percent }
   })
 
   useEffect(() => {
-    if (!opened || !song) return
+    if (!opened || !song?.id) return
 
     setLoading(true)
     fetch(`http://localhost:3000/api/reviews/${encodeURIComponent(song.id)}`)
       .then((res) => res.json())
       .then((data) => {
         setExistingReviews(data)
-        setLoading(false)
-
         const mine = data.find((r) => r.user_id === user?.id)
-        if (mine) {
-          setRating(mine.rating)
-        } else {
-          setRating(0)
-        }
+        setRating(mine ? mine.rating : 0)
       })
-      .catch((err) => {
-        console.error("Failed to fetch reviews:", err)
-        setLoading(false)
-      })
-  }, [opened, song])
+      .catch((err) => console.error("Error fetching reviews:", err))
+      .finally(() => setLoading(false))
+  }, [opened, song?.id, user?.id])
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    const formData = new FormData(e.target)
-    const review = {
-      songId: song.id,
-      title: song.title,
-      artist: song.artist,
-      album: song.album,
-      image: song.image,
-      rating,
-      text: formData.get("reviewText"),
-    }
+    async function handleSubmit(e) {
+      e.preventDefault()
+      console.log("song prop at submit time:", song)
+      const formData = new FormData(e.target)
+      const review = {
+        songId: song.id,
+        title: song.title,
+        artist: song.artist,
+        album: song.album,
+        image: song.image,
+        rating,
+        text: formData.get("reviewText"),
+      }
+      console.log("review object being sent:", review)
 
     try {
       const res = await fetch("http://localhost:3000/api/reviews", {
@@ -65,23 +62,25 @@ function Review({ opened, onClose, song, onSubmitReview }) {
         body: JSON.stringify(review),
       })
 
-      if (!res.ok) {
-        const errData = await res.json()
-        console.error("Failed to save review:", errData)
-        return
+      if (!res.ok) throw new Error("review failed to save.")
+
+      const savedReview = await res.json()
+      
+      setExistingReviews((prev) => [
+        savedReview,
+        ...prev.filter((r) => r.user_id !== user?.id)
+      ])
+
+      if (onSubmitReview) {
+        onSubmitReview(savedReview)
       }
 
-      const saved = await res.json()
-      setExistingReviews((prev) => {
-        const withoutMine = prev.filter((r) => r.user_id !== user?.id)
-        return [saved, ...withoutMine]
-      })
+      e.target.reset()
     } catch (err) {
-      console.error("Failed to save review:", err)
+      console.error("Submit failed:", err)
     }
-
-    e.target.reset()
   }
+
   if (!song) return null
 
   return (
@@ -109,7 +108,7 @@ function Review({ opened, onClose, song, onSubmitReview }) {
           <p className="reviewSongTitle">{song.title}</p>
           <p className="reviewSongArtist">{song.artist}</p>
 
-          {!loading && existingReviews.length > 0 && (
+          {!loading && reviewCount > 0 && (
             <div className="ratingSummary">
               <div className="ratingSummaryHeader">
                 <span className="ratingSummaryAvg">★ {averageRating}</span>
@@ -119,7 +118,7 @@ function Review({ opened, onClose, song, onSubmitReview }) {
               </div>
 
               <div className="ratingDistribution">
-                {ratingCounts.reverse().map(({ star, count, percent }) => (
+                {ratingCounts.map(({ star, count, percent }) => (
                   <div className="ratingBarRow" key={star}>
                     <span className="ratingBarLabel">{star}★</span>
                     <div className="ratingBarTrack">
@@ -134,18 +133,14 @@ function Review({ opened, onClose, song, onSubmitReview }) {
         </div>
 
         <div className="reviewRightCol">
-          
           <div className="existingReviewsScroll">
             {loading && <p className="reviewsLoading">loading reviews...</p>}
-            {!loading && existingReviews.length === 0 && (
+            {!loading && reviewCount === 0 && (
               <p className="reviewsEmpty">no reviews yet — be the first!</p>
             )}
             {!loading &&
               existingReviews.map((r) => {
-                const wasEdited =
-                  r.updated_at &&
-                  r.created_at &&
-                  new Date(r.updated_at) - new Date(r.created_at) > 5000
+                const wasEdited = r.updated_at && r.created_at && r.updated_at !== r.created_at
 
                 return (
                   <div className="existingReview" key={r.id}>
@@ -174,44 +169,44 @@ function Review({ opened, onClose, song, onSubmitReview }) {
           </div>
           
           {user ? (
-          <form onSubmit={handleSubmit} className="reviewForm">
-            <label className="modalLabel">
-              Rating
-              <div className="starRating">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span
-                    key={star}
-                    className={`star ${star <= rating ? "filled" : ""}`}
-                    onClick={() => setRating(star)}
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
-            </label>
+            <form onSubmit={handleSubmit} className="reviewForm">
+              <label className="modalLabel">
+                Rating
+                <div className="starRating">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      className={`star ${star <= rating ? "filled" : ""}`}
+                      onClick={() => setRating(star)}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+              </label>
 
-            <label className="modalLabel">
-              Your Review
-              <textarea
-                key={myExistingReview?.id || "new"}
-                name="reviewText"
-                className="modalInput modalTextarea"
-                rows={2}
-                required
-                defaultValue={myExistingReview?.text || ""}
+              <label className="modalLabel">
+                Your Review
+                <textarea
+                  key={myExistingReview?.id || "new"}
+                  name="reviewText"
+                  className="modalInput modalTextarea"
+                  rows={2}
+                  required
+                  defaultValue={myExistingReview?.text || ""}
+                />
+              </label>
+
+              <input
+                type="submit"
+                value={myExistingReview ? "UPDATE REVIEW" : "POST REVIEW"}
+                className="modalSubmit"
+                disabled={rating === 0}
               />
-            </label>
-
-            <input
-              type="submit"
-              value={myExistingReview ? "UPDATE REVIEW" : "POST REVIEW"}
-              className="modalSubmit"
-              disabled={rating === 0}
-            />
-          </form>
+            </form>
           ) : (
             <div className="loginPrompt">
-              <p> Log in to leave a review! </p>
+              <p>Log in to leave a review!</p>
             </div>
           )}
         </div>
@@ -219,4 +214,6 @@ function Review({ opened, onClose, song, onSubmitReview }) {
     </Modal>
   )
 }
+
 export default Review
+
