@@ -1,18 +1,19 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import WaveText from "../components/Animations"
-import "../css/Landing.css"
-import { useDisclosure } from '@mantine/hooks';
-import { Modal } from '@mantine/core';
-import Login from "../components/Login"
+import { useDisclosure } from '@mantine/hooks'
+import { Modal } from '@mantine/core'
 import { useAuth } from "../contexts/AuthContext"
+import WaveText from "../components/Animations"
+import Login from "../components/Login"
+import "../css/Landing.css"
 
 function Landing() {
   const navigate = useNavigate()
-  const [isSpinning, setIsSpinning] = useState(true)
-  const [opened, { open, close }] = useDisclosure(false);
+  const { user, signup } = useAuth()
+  const [opened, { open, close }] = useDisclosure(false)
   const [loginOpened, { open: openLogin, close: closeLogin }] = useDisclosure(false)
-  const { user } = useAuth()
+  const [authError, setAuthError] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   const notes = [
     { icon: "♪", top: "30%", left: "40px", size: "32px", delay: "0s" },
@@ -22,36 +23,30 @@ function Landing() {
     { icon: "♪", top: "80%", left: "50px", size: "28px", delay: "1.1s" },
   ]
 
+  async function handleCreateAccount(e) {
+    e.preventDefault()
+    setLoading(true)
+    setAuthError(null)
 
-const [authError, setAuthError] = useState(null)
-const [loading, setLoading] = useState(false)
+    const formData = new FormData(e.target)
+    const email = formData.get("email")
+    const password = formData.get("password")
+    const username = formData.get("username")
 
-const { signup } = useAuth()
-
-async function handleCreateAccount(e) {
-  e.preventDefault()
-  setLoading(true)
-
-  const formData = new FormData(e.target)
-  const email = formData.get("email")
-  const password = formData.get("password")
-  const username = formData.get("username")
-  const passwordInput = e.target.elements.password
-
-  passwordInput.setCustomValidity("")
-
-  try {
-    await signup(username, email, password)
-    setLoading(false)
-    close()
-    navigate("/home", { state: { toast: "Account created! Please confirm your email." } })
-  } catch (err) {
-    setLoading(false)
-    console.error("Signup failed:", err)
-    passwordInput.setCustomValidity(err.message)
-    passwordInput.reportValidity()
+    try {
+      await signup(username, email, password)
+      close()
+      navigate("/home", { 
+        state: { toast: "Account created! Welcome to your music diary." } 
+      })
+    } catch (err) {
+      console.error("Signup failed:", err)
+      setAuthError(err?.message || "Something went wrong during signup. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
-}
+
   return (
     <div className="landing-container">
       <div className="landing-copy">
@@ -65,10 +60,11 @@ async function handleCreateAccount(e) {
             <span className="d">ary</span>
           </WaveText>
         </h1>
+        
         <p className="tagline">
-          <span style={{ textIndent: '50px' }}>listen to music.</span>
-          <span style={{ textIndent: '50px' }}>rate it.</span>
-          <span style={{ textIndent: '50px' }}>share it.</span>
+          <span>listen to music.</span>
+          <span>rate it.</span>
+          <span>share it.</span>
         </p>
 
         <Modal
@@ -85,29 +81,45 @@ async function handleCreateAccount(e) {
             JOIN MUSIC<span className="d">DIARY!</span> ♪ <span className="d">♫</span>
           </div>
 
+          {authError && <div className="modalErrorMsg">{authError}</div>}
+
           <form onSubmit={handleCreateAccount}>
-            <label className="modalLabel">Email
+            <label className="modalLabel">
+              Email
               <input
                 type="email"
                 name="email"
-                id="email"
                 className="modalInput"
                 required
               />
             </label>
-            <label className="modalLabel">Username
-              <input type="text" name="username" className="modalInput" required />
-            </label>
-            <label className="modalLabel">Password
-              <input
-                type="password" 
-                name="password"
-                className="modalInput"
-                onChange={(e) => e.target.setCustomValidity("")}
+            
+            <label className="modalLabel">
+              Username
+              <input 
+                type="text" 
+                name="username" 
+                className="modalInput" 
+                required 
               />
             </label>
             
-            <input type="submit" value="SIGN UP!" className="modalSubmit" disabled={loading} />
+            <label className="modalLabel">
+              Password
+              <input
+                type="password"
+                name="password"
+                className="modalInput"
+                required
+              />
+            </label>
+
+            <input 
+              type="submit" 
+              value={loading ? "CREATING..." : "SIGN UP!"} 
+              className="modalSubmit" 
+              disabled={loading} 
+            />
           </form>
         </Modal>
 
@@ -125,6 +137,7 @@ async function handleCreateAccount(e) {
             </button>
           </>
         )}
+        
         <Login opened={loginOpened} onClose={closeLogin} />
       </div>
 
@@ -132,7 +145,7 @@ async function handleCreateAccount(e) {
         {notes.map((note, index) => (
           <span
             key={index}
-            className={`music-note ${isSpinning ? "floating" : ""}`}
+            className="music-note floating"
             style={{
               top: note.top,
               left: note.left,
@@ -144,9 +157,11 @@ async function handleCreateAccount(e) {
             {note.icon}
           </span>
         ))}
-        <div className={isSpinning ? "vinyl spin" : "vinyl"}></div>
+        <div className="vinyl spin"></div>
       </div>
     </div>
-  );
+  )
 }
-export default Landing;
+
+export default Landing
+
