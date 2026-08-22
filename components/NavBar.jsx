@@ -1,14 +1,13 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
-import { supabase } from "../services/supabaseClient"
 import "../css/NavBar.css"
 
 function NavBar() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
 
-  async function handleLogout() {
-    await supabase.auth.signOut()
+  function handleLogout() {
+    logout()
     navigate("/")
   }
 
