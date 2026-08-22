@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom"
 import WaveText from "../components/Animations"
 import "../css/Landing.css"
 import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button, PasswordInput } from '@mantine/core';
-import { supabase } from "../services/supabaseClient"
+import { Modal } from '@mantine/core';
 import Login from "../components/Login"
 import { useAuth } from "../contexts/AuthContext"
 
@@ -27,6 +26,8 @@ function Landing() {
 const [authError, setAuthError] = useState(null)
 const [loading, setLoading] = useState(false)
 
+const { signup } = useAuth()
+
 async function handleCreateAccount(e) {
   e.preventDefault()
   setLoading(true)
@@ -39,29 +40,18 @@ async function handleCreateAccount(e) {
 
   passwordInput.setCustomValidity("")
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { username },
-    },
-  })
-
-  setLoading(false)
-
-  if (error) {
-    console.error("Signup failed:", error)
-    passwordInput.setCustomValidity(error.message)
+  try {
+    await signup(username, email, password)
+    setLoading(false)
+    close()
+    navigate("/home", { state: { toast: "Account created! Please confirm your email." } })
+  } catch (err) {
+    setLoading(false)
+    console.error("Signup failed:", err)
+    passwordInput.setCustomValidity(err.message)
     passwordInput.reportValidity()
-    return
   }
-
-  console.log("Signed up:", data)
-  close()
-  navigate("/home", { state: { toast: "Account created! Please confirm your email." } })
-  
 }
-
   return (
     <div className="landing-container">
       <div className="landing-copy">
