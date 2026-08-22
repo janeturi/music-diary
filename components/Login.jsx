@@ -1,41 +1,37 @@
 import { Modal } from "@mantine/core"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { supabase } from "../services/supabaseClient"
+import { useAuth } from "../contexts/AuthContext"
 
 function Login({ opened, onClose }) {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
 
-  async function handleLogin(e) {
-    e.preventDefault()
-    setLoading(true)
+  const { login } = useAuth()
 
-    const formData = new FormData(e.target)
-    const email = formData.get("email")
-    const password = formData.get("password")
-    const passwordInput = e.target.elements.password
+async function handleLogin(e) {
+  e.preventDefault()
+  setLoading(true)
 
-    passwordInput.setCustomValidity("")
+  const formData = new FormData(e.target)
+  const email = formData.get("email")
+  const password = formData.get("password")
+  const passwordInput = e.target.elements.password
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+  passwordInput.setCustomValidity("")
 
+  try {
+    await login(email, password)
     setLoading(false)
-
-    if (error) {
-      console.error("Login failed:", error)
-      passwordInput.setCustomValidity(error.message)
-      passwordInput.reportValidity()
-      return
-    }
-
-    console.log("Logged in:", data)
     onClose()
     navigate("/home")
+  } catch (err) {
+    setLoading(false)
+    console.error("Login failed:", err)
+    passwordInput.setCustomValidity(err.message)
+    passwordInput.reportValidity()
   }
+}
 
   return (
     <Modal
