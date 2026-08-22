@@ -1,38 +1,30 @@
-import "../css/Diary.css"
-import "../css/MusicCard.css"
 import { useState, useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import ViewReview from "../components/ViewReview"
 import Review from "../components/Review"
+import "../css/Diary.css"
+import "../css/MusicCard.css"
 
-function Diary(){
+function Diary() {
   const { user } = useAuth()
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedReview, setSelectedReview] = useState(null)
   const [editingSong, setEditingSong] = useState(null)
 
-  function fetchDiary() {
-    if (!user) {
+  useEffect(() => {
+    if (!user?.id) {
       setLoading(false)
       return
     }
+
+    setLoading(true)
     fetch(`http://localhost:3000/api/reviews/user/${user.id}`)
       .then((res) => res.json())
-      .then((data) => {
-        setReviews(data)
-        setLoading(false)
-      })
-      .catch((err) => {
-        console.error("Failed to fetch diary:", err)
-        setLoading(false)
-      })
-  }
-
-  useEffect(() => {
-    setLoading(true)
-    fetchDiary()
-  }, [user])
+      .then((data) => setReviews(data))
+      .catch((err) => console.error("Failed to fetch diary:", err))
+      .finally(() => setLoading(false))
+  }, [user?.id])
 
   function handleEdit(review) {
     setSelectedReview(null)
@@ -45,26 +37,28 @@ function Diary(){
     })
   }
 
-  function handleCloseEdit() {
-    setEditingSong(null)
-    fetchDiary()
-  }
-
-  if (loading) {
-    return (
-      <div className="diary-empty">
-        <h2>loading your diary...</h2>
-      </div>
+  function handleReviewSubmit(updatedReview) {
+    setReviews((prev) =>
+      prev.map((r) => (r.id === updatedReview.id ? { ...r, ...updatedReview } : r))
     )
+    setEditingSong(null)
   }
 
-  if (reviews.length > 0) {
-    return (
-      <div className="diary-section"> 
-        <h2 className="diary-title">
-          YOUR MUSIC DIARY!
-        </h2>
-        <hr className="solid" />
+  return (
+    <div className="diary-section">
+      <h2 className="diary-title">YOUR MUSIC DIARY!</h2>
+      <hr className="solid" />
+
+      {loading ? (
+        <div className="diary-status-msg">
+          <h2>loading your diary...</h2>
+        </div>
+      ) : reviews.length === 0 ? (
+        <div className="diary-empty">
+          <h2>no diary entries yet?</h2>
+          <p>start reviewing songs so they appear here!</p>
+        </div>
+      ) : (
         <div className="music-grid">
           {reviews.map((review) => (
             <div
@@ -83,29 +77,24 @@ function Diary(){
             </div>
           ))}
         </div>
+      )}
 
-        <ViewReview
-          opened={!!selectedReview}
-          onClose={() => setSelectedReview(null)}
-          review={selectedReview}
-          onEdit={() => handleEdit(selectedReview)}
-        />
+      <ViewReview
+        opened={!!selectedReview}
+        onClose={() => setSelectedReview(null)}
+        review={selectedReview}
+        onEdit={() => handleEdit(selectedReview)}
+      />
 
-        <Review
-          opened={!!editingSong}
-          onClose={handleCloseEdit}
-          song={editingSong}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="diary-empty">
-      <h2>no diary entries yet?</h2>
-      <p>start reviewing songs so they appear here!</p>
+      <Review
+        opened={!!editingSong}
+        onClose={() => setEditingSong(null)}
+        song={editingSong}
+        onSubmitReview={handleReviewSubmit}
+      />
     </div>
-  );
+  )
 }
 
-export default Diary;
+export default Diary
+
